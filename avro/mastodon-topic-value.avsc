@@ -6,7 +6,7 @@
         {
             "name": "language",
             "type": "string",
-            "default": ""
+            "default": "null"
         },
         {
             "name": "favourites",
