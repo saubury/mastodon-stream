@@ -1,0 +1,41 @@
+{
+    "type": "record",
+    "namespace": "com.simonaubury",
+    "name": "MastodonDetails",
+    "fields": [
+        {
+            "name": "language",
+            "type": "string",
+            "default": ""
+        },
+        {
+            "name": "favourites",
+            "type": "int",
+            "default": 0
+        },
+        {
+            "name": "username",
+            "type": "string",
+            "default": ""
+        },
+        {
+            "name": "bot",
+            "type": "boolean"
+        },
+        {
+            "name": "tags",
+            "type": "int",
+            "default": 0
+        },
+                {
+            "name": "characters",
+            "type": "int",
+            "default": 0
+        },
+                {
+            "name": "words",
+            "type": "int",
+            "default": 0
+        }
+    ]
+}
