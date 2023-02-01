@@ -12,7 +12,12 @@ source env/bin/activate
 ```
 
 
+# Federated timeline
+These are the most recent public posts from people on this and other servers of the decentralized network that this server knows about.
+https://data-folks.masto.host/public
 
+# Proudcer
+python mastodonlisten.py --baseURL https://data-folks.masto.host/ --enableKafka
 
 # Kafka Connect
 

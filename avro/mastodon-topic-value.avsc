@@ -4,6 +4,26 @@
     "name": "MastodonDetails",
     "fields": [
         {
+            "name": "m_id",
+            "type": "long",
+            "default": 0
+        },
+        {
+            "name": "app",
+            "type": "string",
+            "default": "unknown"
+        },
+        {
+            "name": "url",
+            "type": "string",
+            "default": "null"
+        },
+        {
+            "name": "base_url",
+            "type": "string",
+            "default": "null"
+        },
+        {
             "name": "language",
             "type": "string",
             "default": "null"
@@ -36,6 +56,11 @@
             "name": "words",
             "type": "int",
             "default": 0
+        },
+        {
+            "name": "mastodon_text",
+            "type": "string",
+            "default": "null"
         }
     ]
 }
