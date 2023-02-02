@@ -2,12 +2,14 @@ import mastodon
 from mastodon import Mastodon
 from bs4 import BeautifulSoup
 import argparse
+import datetime
 
 from kafkaproducer import kafka_producer
 
 # globals
 base_url = ''
 enable_kafka = False
+quiet = False
 
 # if enable_kafka:
 topic_name, producer = kafka_producer()
@@ -24,26 +26,22 @@ class Listener(mastodon.StreamListener):
         m_lang = status.language
         if m_lang is None:
             m_lang = 'unknown'
+        m_user = status.account.username
 
         app=''
         # attribute only available on local
         if hasattr(status, 'application'):
             app = status.application.get('name')
-
-        # print(f'APP {app}')
-
-        # print(status.url)
-        # print(m_text)
-        # print('')
         
         value_dict = { 
             'm_id': status.id,
+            'created_at': int(datetime.datetime.now().strftime('%s')),
             'app': app,
             'url': status.url,
             'base_url': base_url,  
             'language': m_lang, 
             'favourites': status.favourites_count, 
-            'username': status.account.username, 
+            'username': m_user, 
             'bot': status.account.bot, 
             'tags': num_tags, 
             'characters': num_chars, 
@@ -51,19 +49,17 @@ class Listener(mastodon.StreamListener):
             'mastodon_text': m_text
         }
 
-        if enable_kafka:
-            try:
-                producer.produce(topic = topic_name, value = value_dict)
-                producer.flush()
-            except Exception as exp:
-                print('******* ERROR')
-                print(value_dict)
-                # raise(exp)
+        if not quiet:
+            print(f'{m_user} {m_lang}', m_text[:30])
 
+        if enable_kafka:
+            producer.produce(topic = topic_name, value = value_dict)
+            producer.flush()
 
 def main():
     global base_url
     global enable_kafka
+    global quiet
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -78,6 +74,13 @@ def main():
     parser.add_argument(
         '--public',
         help='listen to public stream (instead of local).',
+        action='store_true',
+        required=False,
+        default=False)
+
+    parser.add_argument(
+        '--quiet',
+        help='Do not echo a summary of the toot',
         action='store_true',
         required=False,
         default=False)

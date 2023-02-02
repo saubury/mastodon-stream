@@ -9,7 +9,9 @@ Before you can start installing or using packages in your virtual environment yo
 
 ```console
 source env/bin/activate
-```
+pip install --upgrade pip
+pip install -r requirements.txt
+ ```
 
 
 # Federated timeline
@@ -20,6 +22,8 @@ https://data-folks.masto.host/public
 python mastodonlisten.py --baseURL https://data-folks.masto.host/ --enableKafka
 
 # Kafka Connect
+
+confluent-hub install confluentinc/kafka-connect-s3:10.3.0
 
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3.json'
 

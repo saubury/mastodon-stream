@@ -9,6 +9,12 @@
             "default": 0
         },
         {
+            "name": "created_at", 
+            "type": ["null","int"],
+            "logicalType": "date",
+            "default" : "null" 
+        },
+        {
             "name": "app",
             "type": "string",
             "default": "unknown"
