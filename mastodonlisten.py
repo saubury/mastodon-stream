@@ -13,11 +13,7 @@ base_url = ''
 enable_kafka = False
 quiet = False
 watchdog = False
-
-if enable_kafka:
-    topic_name, producer = kafka_producer()
-else:
-    topic_name, producer = '' , ''
+topic_name, producer = '' , ''
 
 
 # Listener for Mastodon events
@@ -41,10 +37,13 @@ class Listener(mastodon.StreamListener):
         # attribute only available on local
         if hasattr(status, 'application'):
             app = status.application.get('name')
+
+        now_dt=datetime.datetime.now()
         
         value_dict = { 
             'm_id': status.id,
-            'created_at': int(datetime.datetime.now().strftime('%s')),
+            'created_at': int(now_dt.strftime('%s')),
+            'created_at_str': now_dt.strftime('%Y %m %d %H:%M:%S'),
             'app': app,
             'url': status.url,
             'base_url': base_url,  
@@ -98,6 +97,7 @@ def main():
     global enable_kafka
     global quiet
     global watchdog
+    global topic_name, producer
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -137,8 +137,15 @@ def main():
 
     args = parser.parse_args()
 
+
     base_url=args.baseURL
     enable_kafka=args.enableKafka
+
+    if enable_kafka:
+        topic_name, producer = kafka_producer()
+
+        
+
     mastodon = Mastodon(api_base_url = base_url)
 
     if args.watchdog:

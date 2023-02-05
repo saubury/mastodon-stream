@@ -27,12 +27,16 @@ confluent-hub install confluentinc/kafka-connect-s3:10.3.0
 
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3.json'
 
+curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3-aws/config -d '@./config/mastodon-sink-s3-aws.json'
+
 
 # DuckDB
 
 duckdb --init duckdb/init.sql
 
 select *  FROM read_parquet('s3://mastodon/topics/mastodon-topic*');
+
+select 'epoch'::TIMESTAMP + INTERVAL 1675325510 seconds;
 
 
 # OLD Notes

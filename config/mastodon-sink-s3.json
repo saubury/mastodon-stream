@@ -3,7 +3,7 @@
     "connector.class": "io.confluent.connect.s3.S3SinkConnector",
     "topics": "mastodon-topic",
     "format.class": "io.confluent.connect.s3.format.parquet.ParquetFormat",
-    "flush.size": "1",
+    "flush.size": "1000",
     "s3.bucket.name": "mastodon",
     "aws.access.key.id": "minio",
     "aws.secret.access.key": "minio123",

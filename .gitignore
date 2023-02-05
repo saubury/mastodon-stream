@@ -3,3 +3,4 @@ env/*
 __pycache__
 BAK
 data/*
+config/mastodon-sink-s3-aws.json
