@@ -39,6 +39,11 @@ select *  FROM read_parquet('s3://mastodon/topics/mastodon-topic*');
 select 'epoch'::TIMESTAMP + INTERVAL 1675325510 seconds;
 
 
+# AWS
+```
+aws s3 ls s3://2023mastodon --recursive --human-readable --summarize | tail
+```
+
 # OLD Notes
 
 - https://martinheinz.dev/blog/86

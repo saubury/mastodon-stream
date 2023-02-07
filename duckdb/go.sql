@@ -24,7 +24,7 @@ FROM read_parquet('s3://mastodon/topics/mastodon-topic/partition=0/*');
 select date_part('day', created_tz) as created_day
 , date_part('hour', created_tz) as created_hour
 , count(*)
-from xx
+from yy
 group by 1,2 
 order by 1,2
 ;
