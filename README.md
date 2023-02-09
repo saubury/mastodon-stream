@@ -42,6 +42,8 @@ select 'epoch'::TIMESTAMP + INTERVAL 1675325510 seconds;
 # AWS
 ```
 aws s3 ls s3://2023mastodon --recursive --human-readable --summarize | tail
+
+aws s3 cp s3://2023mastodon . --recursive --exclude "*" --include "*.parquet"
 ```
 
 # OLD Notes
