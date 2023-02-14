@@ -12,7 +12,7 @@
             "name": "created_at", 
             "type": ["null","int"],
             "logicalType": "date",
-            "default" : "null" 
+            "default" : null 
         },
         {
             "name": "created_at_str",

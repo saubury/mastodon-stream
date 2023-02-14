@@ -7,3 +7,4 @@ config/mastodon-sink-s3-aws.json
 notebooks/demo.ipynb
 duckdb/init-s3.sql
 data_tmp/*
+docker-compose-orig.yml

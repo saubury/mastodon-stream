@@ -31,3 +31,92 @@ order by 1,2
 
 -- select username, bot, count(*) from xx group by 1,2 order by 3 desc;
 
+ as select * 
+
+
+
+-- old backup
+create table toots
+as
+select  m_id          
+, created_at    
+, created_at_str
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text 
+FROM read_parquet('../xx.parquet');
+
+insert into toots
+select
+  m_id          
+, created_at    
+, created_at_str
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text
+from read_parquet('*.parquet');
+
+insert into toots
+select
+  m_id          
+, created_at    
+, created_at_str
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text
+from read_parquet('20230213/mastodon-topic/partition=0/*.parquet');
+
+
+
+create table all_toots
+as
+select
+  m_id          
+, created_at    
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text
+from toots
+group by
+  m_id          
+, created_at    
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text;
+
+COPY all_toots TO 'all_toots.parquet' (FORMAT PARQUET);
