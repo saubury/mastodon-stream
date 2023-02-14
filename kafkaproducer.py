@@ -14,7 +14,8 @@ def acked(err, msg):
 def kafka_producer():
     producer_config = {
         'bootstrap.servers': 'localhost:9092',
-        'schema.registry.url': 'http://localhost:8081'
+        'schema.registry.url': 'http://localhost:8081', 
+        'broker.address.family': 'v4'
     }
 
     value_schema = avro.load('avro/mastodon-topic-value.avsc')
