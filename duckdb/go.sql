@@ -87,6 +87,22 @@ select
 , mastodon_text
 from read_parquet('20230213/mastodon-topic/partition=0/*.parquet');
 
+insert into toots
+select
+  m_id          
+, created_at    
+, created_at_str
+, app           
+, url           
+, base_url      
+, language      
+, favourites    
+, username      
+, bot           
+, tags          
+, characters    
+, mastodon_text
+from read_parquet('20230216/mastodon-topic/partition=0/*.parquet');
 
 
 create table all_toots
