@@ -21,11 +21,27 @@ https://data-folks.masto.host/public
 # Proudcer
 python mastodonlisten.py --baseURL https://data-folks.masto.host/ --enableKafka
 
+
+# Testing producer
+You can check that AVRO messages are being written to kafka
+
+```
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic mastodon-topic --from-beginning
+```
+
+
 # Kafka Connect
+
+```
+curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3-minio.json'
+```
+
+
+
+# Kafka Connect OLD
 
 confluent-hub install confluentinc/kafka-connect-s3:10.3.0
 
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3-minio.json'
 
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3.json'
 
