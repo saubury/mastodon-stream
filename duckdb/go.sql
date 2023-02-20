@@ -68,7 +68,7 @@ select
 , tags          
 , characters    
 , mastodon_text
-from read_parquet('*.parquet');
+from read_parquet('mastodo*.parquet');
 
 insert into toots
 select
@@ -102,7 +102,7 @@ select
 , tags          
 , characters    
 , mastodon_text
-from read_parquet('20230216/mastodon-topic/partition=0/*.parquet');
+from read_parquet('20230220/mastodon-topic/partition=0/*.parquet');
 
 
 create table all_toots
