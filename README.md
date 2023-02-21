@@ -36,6 +36,8 @@ kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic mastodon-t
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3-minio.json'
 ```
 
+# Open s3 browser
+http://localhost:9001/
 
 
 # Kafka Connect OLD

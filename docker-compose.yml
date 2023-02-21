@@ -178,23 +178,23 @@ services:
       exit 0;
       "
 
-  jupyter:
-    image: jupyter/scipy-notebook
-    ports:
-      - "8888:8888"
-    healthcheck:
-      test: nc -z localhost 8888 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
-    volumes:
-      - ./notebooks:/home/jovyan/
-    user: root
-    environment:
-      JUPYTER_ENABLE_LAB: "yes"
-      JUPYTER_RUNTIME_DIR: "/tmp"
-      NB_USER: simonaubury
-      CHOWN_HOME: 'yes'
-      CHOWN_HOME_OPTS: '-R' 
-    command: "start-notebook.sh --allow-root --ip=0.0.0.0  --NotebookApp.token='' --NotebookApp.password=''"
+  # jupyter:
+  #   image: jupyter/scipy-notebook
+  #   ports:
+  #     - "8888:8888"
+  #   healthcheck:
+  #     test: nc -z localhost 8888 || exit -1
+  #     start_period: 15s
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 10
+  #   volumes:
+  #     - ./notebooks:/home/jovyan/
+  #   user: root
+  #   environment:
+  #     JUPYTER_ENABLE_LAB: "yes"
+  #     JUPYTER_RUNTIME_DIR: "/tmp"
+  #     NB_USER: simonaubury
+  #     CHOWN_HOME: 'yes'
+  #     CHOWN_HOME_OPTS: '-R' 
+  #   command: "start-notebook.sh --allow-root --ip=0.0.0.0  --NotebookApp.token='' --NotebookApp.password=''"
