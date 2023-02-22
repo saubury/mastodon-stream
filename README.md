@@ -1,5 +1,23 @@
-# Setup virtual python environment
-Optionally, you can use a [virtual python](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) environment to keep dependencies separate. The _venv_ module is the preferred way to create and manage virtual environments. 
+# Mastodon usage - counting toots with DuckDB  
+
+[Mastodon](https://joinmastodon.org/) is a _decentralized_ social networking platform. Mastodon users are members of a _specific_ Mastodon server, and servers are capable of joining other servers to form a global (or at least federated) social network.
+
+I wanted to start exploring Mastodon usage, and perform some exploratory data analysis of user activity, server popularity and language usage. You may want to jump straight to the [data analysis](#data-analysis)
+
+Tools used
+- [Mastodon.py](https://mastodonpy.readthedocs.io/) - Python library for interacting with the Mastodon API
+- [Apache Kafka](https://kafka.apache.org/) - distributed event streaming platform
+- [DuckDB](https://duckdb.org/) - in-process SQL OLAP database and the [HTTPFS DuckDB extension](https://duckdb.org/docs/extensions/httpfs.html) for reading remote/writing remote files of object storage using the S3 API
+- [MinIO](https://min.io/) - S3 compatible server
+- [Seaborn](https://seaborn.pydata.org/) - visualization library 
+
+
+![mastodon architecture](./docs/mastodon_arch.png)
+
+
+# Data collection
+## Setup virtual python environment
+Create a [virtual python](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) environment to keep dependencies separate. The _venv_ module is the preferred way to create and manage virtual environments. 
 
  ```console
 python3 -m venv env
@@ -14,166 +32,97 @@ pip install -r requirements.txt
  ```
 
 
-# Federated timeline
+## Federated timeline
 These are the most recent public posts from people on this and other servers of the decentralized network that this server knows about.
-https://data-folks.masto.host/public
 
-# Proudcer
-python mastodonlisten.py --baseURL https://data-folks.masto.host/ --enableKafka
+## Mastodon listener
+The python `mastodonlisten` application listens for public posts to the specified server, and sends each toot to Kafka. You can run multiple Mastodon listeners, each listening to the activity of different servers
 
+```console
+python mastodonlisten.py --baseURL https://mastodon.social --enableKafka
+```
 
-# Testing producer
+## Testing producer
 You can check that AVRO messages are being written to kafka
 
-```
+```console
 kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic mastodon-topic --from-beginning
 ```
 
 
 # Kafka Connect
 
-```
+```console
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3-minio.json'
 ```
 
 # Open s3 browser
-http://localhost:9001/
+Go to the MinIO web browser http://localhost:9001/
 
 
-# Kafka Connect OLD
-
-confluent-hub install confluentinc/kafka-connect-s3:10.3.0
-
-
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3.json'
-
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3-aws/config -d '@./config/mastodon-sink-s3-aws.json'
+# Data analysis
+Now we have collected a week of Mastodon activity, let's have a look at some data. These steps are detailed in the [notebook](./notebooks/mastodon-analysis.ipynb)
 
 
-# DuckDB
+## Query parquet files directly from s3 using DuckDB
 
-duckdb --init duckdb/init.sql
+Load the [HTTPFS DuckDB extension](https://duckdb.org/docs/extensions/httpfs.html) for reading remote/writing remote files of object storage using the S3 API
 
-select *  FROM read_parquet('s3://mastodon/topics/mastodon-topic*');
+```console
+INSTALL httpfs;
+LOAD httpfs;
 
-select 'epoch'::TIMESTAMP + INTERVAL 1675325510 seconds;
-
-
-# AWS
-```
-aws s3 ls s3://2023mastodon --recursive --human-readable --summarize | tail
-
-aws s3 cp s3://2023mastodon . --recursive --exclude "*" --include "*.parquet"
-```
-
-# OLD Notes
-
-- https://martinheinz.dev/blog/86
-- https://github.com/morsapaes/hex-data-council/tree/main/data-generator
-- https://redpanda.com/blog/kafka-streaming-data-pipeline-from-postgres-to-duckdb
-
-
-# Docker Notes
-
-```
-docker-compose up -d postgres datagen
-```
-
-Password `postgres`
-
-```
-psql -h localhost -U postgres -d postgres
-select * from public.user limit 3;
-```
-
-```
-docker-compose up -d redpanda redpanda-console connect
-```
-
-Redpanda Console at http://localhost:8080
-
-```
-docker exec -it connect /bin/bash
-
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/pg-src/config -d '@/connectors/pg-src.json'
-
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/s3-sink/config -d '@/connectors/s3-sink.json'
-
-
-curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/s3-sink-m/config -d '@/connectors/s3-sink-m.json'
-
-```
-
-
-
-```
-docker-compose up -d minio mc
-```
-http://localhost:9000
-```
-
-Login with : `minio / minio123`
-
-```
-docker-compose up -d duckdb
-```
-
-```
-docker-compose exec duckdb bash
-duckdb --init duckdb/init.sql
-
-SELECT count(value.after.id) as user_count FROM read_parquet('s3://user-payments/debezium.public.user-*');
-
-```
-
-## Kafka notes
-
-python avro-producer.py -b "localhost:9092" -s "http://localhost:8081" -t aubury.mytopic
-
-
-
-## LakeFS
-
-docker run --pull always -p 8000:8000 \
-   -e LAKEFS_BLOCKSTORE_TYPE='s3' \
-   -e AWS_ACCESS_KEY_ID='YourAccessKeyValue' \
-   -e AWS_SECRET_ACCESS_KEY='YourSecretKeyValue' \
-   treeverse/lakefs run --local-settings
-
-docker run --pull always -p 8000:8000 \
-   -e LAKEFS_BLOCKSTORE_TYPE='s3' \
-   -e LAKEFS_BLOCKSTORE_S3_FORCE_PATH_STYLE='true' \
-   -e LAKEFS_BLOCKSTORE_S3_ENDPOINT='http://minio:9000' \
-   -e LAKEFS_BLOCKSTORE_S3_DISCOVER_BUCKET_REGION='false' \
-   -e LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_KEY_ID='minio' \
-   -e LAKEFS_BLOCKSTORE_S3_CREDENTIALS_SECRET_ACCESS_KEY='minio123' \
-   treeverse/lakefs run --local-settings   
-
-set s3_endpoint='minio:9000';
+set s3_endpoint='localhost:9000';
 set s3_access_key_id='minio';
 set s3_secret_access_key='minio123';
 set s3_use_ssl=false;
-set s3_region='us-east-1';
 set s3_url_style='path';
-
-
-
-### Installing packages
-
-Now that you’re in your virtual environment you can install packages.
-
-```console
-python -m pip install --requirement requirements.txt
 ```
 
-### JupyterLab
-Once installed, launch JupyterLab with:
+And you can now query the parquet files directly from s3
 
-```console
-jupyter-lab
+```sql
+select *
+from read_parquet('s3://mastodon/topics/mastodon-topic/partition=0/*');
 ```
 
-### Cleanup of virtual environment
+![SQL](./docs/select_from_s3_result.png)
+
+## Daily Mastodon usage
+
+We can query the `mastodon_toot` table directly to see the number of _toots_, _users_ each day by counting and grouping the activity by the day
+
+We can use the [mode](https://duckdb.org/docs/sql/aggregates.html#statistical-aggregates) aggregate function to find the most frequent "bot" and "not-bot" users to find the most active Mastodon users
+
+
+
+## The Mastodon app landscape
+What clients are used to access mastodon instances. We take the query the `mastodon_toot` table, excluding "bots" and load query results into the `mastodon_app_df` Panda dataframe. [Seaborn](https://seaborn.pydata.org/) is a visualization library for statistical graphics  in Python, built on the top of [matplotlib](https://matplotlib.org/). It also works really well with Panda data structures.
+
+![App usage](./docs/app_usage.png)
+
+
+## Time of day Mastodon usage
+Let's see when Mastodon is used throughout the day and night. I want to get a raw hourly cound of _toots_ each hour of each day. We can load the results of this query into the `mastodon_usage_df` dataframe
+
+![hour of day](./docs/hr_of_day_usage.png)
+
+## Language usage
+A wildly inaccurate investigation of language tags
+
+![language usage](./docs/language_usage.png)
+
+## Language density
+A wildly inaccurate investigation of language tags
+
+![language density](./docs/language_density.png)
+
+
+
+# Optional steps
+
+
+## Cleanup of virtual environment
 If you want to switch projects or otherwise leave your virtual environment, simply run:
 
 ```console
@@ -181,3 +130,9 @@ deactivate
 ```
 
 If you want to re-enter the virtual environment just follow the same instructions above about activating a virtual environment. There’s no need to re-create the virtual environment.
+
+
+## References and further reading
+- [Getting Started with Mastodon API in Python](https://martinheinz.dev/blog/86)
+
+
