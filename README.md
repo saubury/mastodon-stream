@@ -14,8 +14,15 @@ Tools used
 
 ![mastodon architecture](./docs/mastodon_arch.png)
 
+# Data processing
+We will us Kafka as distributed stream processing platform to collect data from multiple instances. To run Kafka, Kafka Connect (with the S3 sink connector) and schema registry (to support AVRO serialisation) and MinIO setup containers with this command
+
+```console
+ docker-compose up -d
+ ```
 
 # Data collection
+
 ## Setup virtual python environment
 Create a [virtual python](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) environment to keep dependencies separate. The _venv_ module is the preferred way to create and manage virtual environments. 
 
@@ -42,8 +49,8 @@ The python `mastodonlisten` application listens for public posts to the specifie
 python mastodonlisten.py --baseURL https://mastodon.social --enableKafka
 ```
 
-## Testing producer
-You can check that AVRO messages are being written to kafka
+## Testing producer (optional)
+As an optional step, you can check that AVRO messages are being written to kafka
 
 ```console
 kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic mastodon-topic --from-beginning
@@ -51,6 +58,7 @@ kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic mastodon-t
 
 
 # Kafka Connect
+To load the Kafka Connect [config](./config/mastodon-sink-s3-minio.json) file run the following
 
 ```console
 curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastodon-sink-s3/config -d '@./config/mastodon-sink-s3-minio.json'
@@ -58,6 +66,9 @@ curl -X PUT -H  "Content-Type:application/json" localhost:8083/connectors/mastod
 
 # Open s3 browser
 Go to the MinIO web browser http://localhost:9001/
+
+- username `minio`
+- password `minio123`
 
 
 # Data analysis
@@ -130,9 +141,4 @@ deactivate
 ```
 
 If you want to re-enter the virtual environment just follow the same instructions above about activating a virtual environment. There’s no need to re-create the virtual environment.
-
-
-## References and further reading
-- [Getting Started with Mastodon API in Python](https://martinheinz.dev/blog/86)
-
 
