@@ -115,39 +115,6 @@ services:
       # CONNECT_PLUGIN_PATH: "/usr/share/connect_plugin,/usr/share/confluent-hub-components"
       CONNECT_PLUGIN_PATH: "/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
-    # volumes:
-    #   - ./connect_plugin:/usr/share/connect_plugin
-
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:${CONF_VER}
-    platform: linux/amd64
-    hostname: control-center
-    container_name: control-center
-    depends_on:
-      schema-registry:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
-    ports:
-      - "9021:9021"
-    healthcheck:
-      test: nc -z localhost 9021 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 30      
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
-      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'http://connect:8083'
-      # CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
-      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: '/connectors'
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      PORT: 9021
 
   minio:
     hostname: minio
@@ -177,24 +144,3 @@ services:
       /usr/bin/mc policy set public minio/mastodon;
       exit 0;
       "
-
-  # jupyter:
-  #   image: jupyter/scipy-notebook
-  #   ports:
-  #     - "8888:8888"
-  #   healthcheck:
-  #     test: nc -z localhost 8888 || exit -1
-  #     start_period: 15s
-  #     interval: 5s
-  #     timeout: 10s
-  #     retries: 10
-  #   volumes:
-  #     - ./notebooks:/home/jovyan/
-  #   user: root
-  #   environment:
-  #     JUPYTER_ENABLE_LAB: "yes"
-  #     JUPYTER_RUNTIME_DIR: "/tmp"
-  #     NB_USER: simonaubury
-  #     CHOWN_HOME: 'yes'
-  #     CHOWN_HOME_OPTS: '-R' 
-  #   command: "start-notebook.sh --allow-root --ip=0.0.0.0  --NotebookApp.token='' --NotebookApp.password=''"
