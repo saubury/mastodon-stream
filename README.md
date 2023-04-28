@@ -132,6 +132,12 @@ A wildly inaccurate investigation of language tags
 
 # Optional steps
 
+Storage to Postgres
+
+```bash
+python mastodonlisten.py --baseURL https://hachyderm.io --public --watchdog 200 --enableDB
+```
+
 
 ## Cleanup of virtual environment
 If you want to switch projects or otherwise leave your virtual environment, simply run:
