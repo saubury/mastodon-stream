@@ -8,3 +8,4 @@ notebooks/demo.ipynb
 duckdb/init-s3.sql
 data_tmp/*
 docker-compose-orig.yml
+db_config.json

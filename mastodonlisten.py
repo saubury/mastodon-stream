@@ -7,10 +7,12 @@ from threading import Timer
 import os
 
 from kafkaproducer import kafka_producer
+import postgreswriter  
 
 # globals
 base_url = ''
 enable_kafka = False
+enable_db = False
 quiet = False
 watchdog = False
 topic_name, producer = '' , ''
@@ -65,6 +67,9 @@ class Listener(mastodon.StreamListener):
             producer.produce(topic = topic_name, value = value_dict)
             producer.flush()
 
+        if enable_db:
+            postgreswriter.do_insert_value_dict(value_dict)
+
 
 class Watchdog:
     def __init__(self, timeout, userHandler=None): # timeout in seconds
@@ -95,6 +100,7 @@ def watchExpired():
 def main():
     global base_url
     global enable_kafka
+    global enable_db
     global quiet
     global watchdog
     global topic_name, producer
@@ -105,6 +111,13 @@ def main():
     parser.add_argument(
         '--enableKafka',
         help='Whether to enable Kafka producer.',
+        action='store_true',
+        required=False,
+        default=False)
+
+    parser.add_argument(
+        '--enableDB',
+        help='Whether to enable Postgres Database.',
         action='store_true',
         required=False,
         default=False)
@@ -133,13 +146,14 @@ def main():
         '--baseURL',
         help='Server URL',
         required=False,
-        default='https://mastodon.social')      
+        default='https://aus.social')      
 
     args = parser.parse_args()
 
 
     base_url=args.baseURL
     enable_kafka=args.enableKafka
+    enable_db=args.enableDB
 
     if enable_kafka:
         topic_name, producer = kafka_producer()

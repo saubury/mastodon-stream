@@ -1,0 +1,7 @@
+{
+    "database": "mastodon",
+    "user": "mastodon_user",
+    "password": "XXXXX",
+    "host": "192.168.1.1",
+    "port": "5432"
+}
